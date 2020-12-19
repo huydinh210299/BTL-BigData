@@ -1,0 +1,58 @@
+version: '3'
+services: 
+  node1:
+    stdin_open: true
+    tty: true
+    container_name: node1
+    image: huydinh210299/datanode1:latest
+    hostname: datanode1
+    networks: 
+      my-networks:
+        aliases:
+          - "datanode1"
+        ipv4_address: "172.16.238.2"
+    extra_hosts: 
+      - "namenode:172.16.238.4"
+  node2:
+    stdin_open: true
+    tty: true
+    container_name: node2
+    image: huydinh210299/datanode2:latest
+    hostname: datanode2
+    networks: 
+      my-networks:
+        aliases:
+          - "datanode2"
+        ipv4_address: "172.16.238.3"
+    extra_hosts: 
+      - "namenode:172.16.238.4" 
+  masternode:
+    stdin_open: true
+    tty: true
+    container_name: masternode
+    image: huydinh210299/namenode:v1
+    hostname: namenode
+    networks: 
+      my-networks:
+        aliases:
+          - "masternode"
+        ipv4_address: "172.16.238.4"
+    extra_hosts: 
+      - "datanode1:172.16.238.2" 
+      - "datanode2:172.16.238.3" 
+    depends_on: 
+      - "node1"
+      - "node2"
+networks: 
+  "my-networks":
+    driver: bridge
+    ipam: 
+      config: 
+        - subnet : "172.16.238.0/24"
+        - subnet : "2001:3984:3989::/64"
+volumes: 
+  "my-volumes":
+    driver_opts: 
+      type: 'nfs'
+      device: /opt/
+      o: bind
